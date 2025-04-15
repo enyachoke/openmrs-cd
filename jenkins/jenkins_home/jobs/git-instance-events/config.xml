@@ -34,6 +34,56 @@
   </triggers>
   <concurrentBuild>false</concurrentBuild>
   <builders>
+    <hudson.plugins.groovy.SystemGroovy plugin="groovy@442.v817e6d937d6c">
+      <source class="hudson.plugins.groovy.StringSystemScriptSource">
+        <script plugin="script-security@1373.vb_b_4a_a_c26fa_00">
+          <script>try {
+    // Get the admin user using jenkins.model.Jenkins
+    def user = jenkins.model.Jenkins.get().getUser(&apos;admin&apos;)
+    def tokenProperty = user.getProperty(jenkins.security.ApiTokenProperty.class)
+    
+    // Generate new token
+    def result = tokenProperty.tokenStore.generateNewToken(&apos;gitops-script-token&apos;)
+    def token = result.plainValue
+    
+    // Create a proper EnvironmentContributingAction
+    def envAction = new hudson.model.EnvironmentContributingAction() {
+        @Override
+        void buildEnvironment(hudson.model.Run&lt;?, ?&gt; run, hudson.EnvVars env) {
+            env.put(&apos;JENKINS_API_TOKEN&apos;, token)
+        }
+        
+        @Override
+        String getDisplayName() {
+            return null
+        }
+        
+        @Override
+        String getIconFileName() {
+            return null
+        }
+        
+        @Override
+        String getUrlName() {
+            return null
+        }
+    }
+    
+    // Add the action to the build
+    build.addAction(envAction)
+    
+    println &quot;Token generated successfully and set as JENKINS_API_TOKEN: ${token}&quot;
+    return 0
+    
+} catch (Exception e) {
+    println &quot;Error generating token: ${e.message}&quot;
+    e.printStackTrace()
+    return 1
+}</script>
+          <sandbox>false</sandbox>
+        </script>
+      </source>
+    </hudson.plugins.groovy.SystemGroovy>
     <hudson.tasks.Shell>
       <command>node /opt/node-scripts/src/gitops/gitops.js</command>
       <configuredLocalRules/>
