@@ -200,7 +200,7 @@ function findStoredInstance(instanceDefinition) {
 }
 
 /**
- * Rejects UUIDs that clash with another instance  and having a different name.
+ * Rejects UUIDs that conflicts with another instance and having a different name.
  *
  * @param {Object} storedInstance - The stored instance matching a newly added file, {} otherwise.
  */
